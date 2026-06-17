@@ -7,6 +7,11 @@ const SERVICE_COLORS = {
   netflix: { bg: '#E50914', label: 'Netflix' },
   prime: { bg: '#00A8E1', label: 'Prime Video' },
   disney: { bg: '#113CCF', label: 'Disney+' },
+  hotstar: { bg: '#002952', label: 'Disney+ Hotstar' },
+  zee5: { bg: '#821580', label: 'Zee5' },
+  aha: { bg: '#FF5C00', label: 'Aha' },
+  jiocinema: { bg: '#D4145A', label: 'JioCinema' },
+  sonyliv: { bg: '#141414', border: '1px solid #ffcc00', label: 'SonyLIV' },
   hbo: { bg: '#B535F6', label: 'HBO Max' },
   hulu: { bg: '#1CE783', label: 'Hulu' },
   apple: { bg: '#555', label: 'Apple TV+' },
@@ -62,12 +67,61 @@ function MovieDetail() {
   };
 
   const handleStreamingClick = (link) => {
-    window.open(link, '_blank');
+    if (link && link !== '#') {
+      window.open(link, '_blank');
+    }
   };
 
-  const streamingEntries = movie.streamingOptions
-    ? Object.entries(movie.streamingOptions)
-    : [];
+  const getStreamingOptionsList = () => {
+    const options = movie.streamingOptions;
+    if (!options) return [];
+
+    if (Array.isArray(options)) {
+      // Format is [ { service: "netflix", link: "..." }, { service: "hotstar", link: "..." } ]
+      const seen = new Set();
+      const unique = [];
+      options.forEach(opt => {
+        if (opt && opt.service) {
+          const serviceId = typeof opt.service === 'object' && opt.service.id
+            ? opt.service.id
+            : typeof opt.service === 'string'
+            ? opt.service
+            : null;
+
+          if (serviceId) {
+            const serviceKey = serviceId.toLowerCase();
+            if (!seen.has(serviceKey)) {
+              seen.add(serviceKey);
+              unique.push({
+                service: serviceKey,
+                link: opt.link || '#'
+              });
+            }
+          }
+        }
+      });
+      return unique;
+    } else if (typeof options === 'object') {
+      // Format is { netflix: [ { link: "..." } ], prime: [ { link: "..." } ] }
+      const seen = new Set();
+      const unique = [];
+      Object.entries(options).forEach(([serviceName, optList]) => {
+        const link = Array.isArray(optList) && optList.length > 0 ? optList[0].link : '#';
+        const serviceKey = serviceName.toLowerCase();
+        if (!seen.has(serviceKey)) {
+          seen.add(serviceKey);
+          unique.push({
+            service: serviceKey,
+            link: link || '#'
+          });
+        }
+      });
+      return unique;
+    }
+    return [];
+  };
+
+  const streamingList = getStreamingOptionsList();
 
   return (
     <div style={styles.page}>
@@ -104,15 +158,16 @@ function MovieDetail() {
       </div>
 
       {/* ===== CONTENT ===== */}
-      <div style={styles.contentWrapper}>
-        <div style={styles.contentInner}>
+      <div className="movie-detail-content-wrapper" style={styles.contentWrapper}>
+        <div className="movie-detail-content-inner" style={styles.contentInner}>
           {/* Poster */}
-          <div style={styles.posterContainer}>
+          <div className="movie-detail-poster-container" style={styles.posterContainer}>
             {movie.poster_path ? (
               <img
                 src={movie.poster_path}
                 alt={movieName}
                 style={styles.poster}
+                className="movie-detail-poster"
               />
             ) : (
               <div style={styles.posterPlaceholder}>
@@ -123,12 +178,12 @@ function MovieDetail() {
           </div>
 
           {/* Info */}
-          <div style={styles.infoContainer}>
+          <div className="movie-detail-info" style={styles.infoContainer}>
             {/* Title */}
             <h1 style={styles.title}>{movieName}</h1>
 
             {/* Meta row: year, type badge, rating */}
-            <div style={styles.metaRow}>
+            <div className="movie-detail-meta-row" style={styles.metaRow}>
               {movie.year && (
                 <span style={styles.year}>{movie.year}</span>
               )}
@@ -155,7 +210,7 @@ function MovieDetail() {
 
             {/* Genres */}
             {movie.genres && movie.genres.length > 0 && (
-              <div style={styles.genresRow}>
+              <div className="movie-detail-genres-row" style={styles.genresRow}>
                 {movie.genres.map((genre, i) => (
                   <span key={i} style={styles.genrePill}>
                     {genre}
@@ -166,12 +221,12 @@ function MovieDetail() {
 
             {/* Overview */}
             {movie.overview && (
-              <p style={styles.overview}>{movie.overview}</p>
+              <p style={styles.overview} className="movie-detail-overview">{movie.overview}</p>
             )}
 
             {/* Cast */}
             {movie.cast && movie.cast.length > 0 && (
-              <div style={styles.castSection}>
+              <div style={styles.castSection} className="movie-detail-cast">
                 <span style={styles.castLabel}>Cast: </span>
                 <span style={styles.castList}>
                   {movie.cast.slice(0, 6).join(', ')}
@@ -181,7 +236,7 @@ function MovieDetail() {
             )}
 
             {/* ===== ACTION BUTTONS ===== */}
-            <div style={styles.actionsRow}>
+            <div className="movie-detail-actions-row" style={styles.actionsRow}>
               {/* Play Trailer */}
               <button
                 style={{
@@ -219,31 +274,28 @@ function MovieDetail() {
             </div>
 
             {/* ===== STREAMING OPTIONS ===== */}
-            {streamingEntries.length > 0 && (
-              <div style={styles.streamingSection}>
+            {streamingList.length > 0 && (
+              <div style={styles.streamingSection} className="movie-detail-streaming-section">
                 <h3 style={styles.streamingTitle}>Available On:</h3>
-                <div style={styles.streamingRow}>
-                  {streamingEntries.map(([service, options]) => {
-                    const info = SERVICE_COLORS[service] || {
+                <div className="movie-detail-streaming-row" style={styles.streamingRow}>
+                  {streamingList.map((item) => {
+                    const info = SERVICE_COLORS[item.service] || {
                       bg: '#444',
-                      label: service.charAt(0).toUpperCase() + service.slice(1),
+                      label: item.service.charAt(0).toUpperCase() + item.service.slice(1),
                     };
-                    const link =
-                      Array.isArray(options) && options.length > 0
-                        ? options[0].link
-                        : '#';
 
                     return (
                       <button
-                        key={service}
+                        key={item.service}
                         style={{
                           ...styles.streamingBtn,
                           background: info.bg,
+                          border: info.border || 'none',
                         }}
-                        onClick={() => handleStreamingClick(link)}
+                        onClick={() => handleStreamingClick(item.link)}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                          e.currentTarget.style.boxShadow = `0 6px 20px ${info.bg}66`;
+                          e.currentTarget.style.boxShadow = info.bg !== '#141414' ? `0 6px 20px ${info.bg}66` : '0 6px 20px rgba(255, 204, 0, 0.2)';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.transform = 'translateY(0) scale(1)';
@@ -281,23 +333,48 @@ function MovieDetail() {
         }
 
         @media (max-width: 768px) {
+          .movie-detail-content-wrapper {
+            padding: 0 24px 40px !important;
+            margin-top: -60px !important;
+          }
           .movie-detail-content-inner {
             flex-direction: column !important;
             align-items: center !important;
             text-align: center !important;
+            gap: 24px !important;
           }
           .movie-detail-poster-container {
-            margin-bottom: 24px !important;
+            margin-bottom: 0 !important;
             margin-right: 0 !important;
+          }
+          .movie-detail-poster {
+            width: 180px !important;
           }
           .movie-detail-info {
             align-items: center !important;
+          }
+          .movie-detail-overview {
+            text-align: center !important;
+            font-size: 0.95rem !important;
           }
           .movie-detail-meta-row,
           .movie-detail-genres-row,
           .movie-detail-actions-row,
           .movie-detail-streaming-row {
             justify-content: center !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .movie-detail-content-wrapper {
+            padding: 0 16px 30px !important;
+            margin-top: -30px !important;
+          }
+          .movie-detail-poster {
+            width: 140px !important;
+          }
+          .movie-detail-overview {
+            font-size: 0.9rem !important;
+            line-height: 1.5 !important;
           }
         }
       `}</style>

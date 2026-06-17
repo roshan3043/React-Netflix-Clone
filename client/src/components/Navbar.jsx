@@ -63,6 +63,22 @@ function Navbar() {
     }
   };
 
+  const handleNavClick = (sectionId) => {
+    setMobileMenuOpen(false);
+    if (window.location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: sectionId } });
+    } else {
+      if (sectionId === 'banner') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+  };
+
   return (
     <div className={`nav ${show ? 'nav-black' : ''}`}>
       {/* Left Section */}
@@ -74,11 +90,11 @@ function Navbar() {
           alt="Netflix Logo"
         />
         <ul className="nav-links">
-          <li className="active">Home</li>
-          <li>TV Shows</li>
-          <li>Movies</li>
-          <li>New & Popular</li>
-          <li>My List</li>
+          <li onClick={() => handleNavClick('banner')}>Home</li>
+          <li onClick={() => handleNavClick('top-rated')}>TV Shows</li>
+          <li onClick={() => handleNavClick('action-movies')}>Movies</li>
+          <li onClick={() => handleNavClick('trending')}>New & Popular</li>
+          <li onClick={() => handleNavClick('netflix-originals')}>My List</li>
         </ul>
 
         {/* Mobile hamburger */}
@@ -211,11 +227,11 @@ function Navbar() {
       {mobileMenuOpen && (
         <div className="nav-mobile-menu">
           <ul>
-            <li onClick={() => { navigate('/'); setMobileMenuOpen(false); }}>Home</li>
-            <li>TV Shows</li>
-            <li>Movies</li>
-            <li>New & Popular</li>
-            <li>My List</li>
+            <li onClick={() => handleNavClick('banner')}>Home</li>
+            <li onClick={() => handleNavClick('top-rated')}>TV Shows</li>
+            <li onClick={() => handleNavClick('action-movies')}>Movies</li>
+            <li onClick={() => handleNavClick('trending')}>New & Popular</li>
+            <li onClick={() => handleNavClick('netflix-originals')}>My List</li>
           </ul>
         </div>
       )}

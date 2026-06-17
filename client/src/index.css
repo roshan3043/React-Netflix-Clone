@@ -197,7 +197,7 @@ button {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 4rem;
-  border-radius: 8px;
+  border-radius: 16px;
   width: 100%;
   max-width: 450px;
   display: flex;
@@ -227,7 +227,7 @@ button {
   background-color: rgba(51, 51, 51, 0.8);
   color: white;
   padding: 1.2rem 1rem 0.5rem;
-  border-radius: 4px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   outline: none;
   font-size: 1rem;
@@ -263,7 +263,7 @@ button {
   padding: 1rem;
   margin-top: 1rem;
   font-size: 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
   position: relative;
   min-height: 50px;
   display: flex;
@@ -307,7 +307,7 @@ button {
   font-size: 0.875rem;
   background: rgba(51, 51, 51, 0.8);
   padding: 0.75rem;
-  border-radius: 4px;
+  border-radius: 8px;
   border-left: 3px solid #e87c03;
   animation: slideDown 0.3s ease;
 }
